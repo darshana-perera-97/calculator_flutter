@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
+// import 'splash.dart';
 
 void main() {
   runApp(Calculator());
@@ -13,6 +14,7 @@ class Calculator extends StatelessWidget {
       title: 'Calculator',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: SimpleCalculator(),
+      // home: SplashScreen(),
     );
   }
 }
@@ -63,7 +65,7 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
       } else {
         equationFontSize = 48.0;
         resultFontSize = 38.0;
-        if (equation == "0") {
+        if (equation == "0" || equation == "00") {
           equation = buttonText;
         } else {
           equation = equation + buttonText;
