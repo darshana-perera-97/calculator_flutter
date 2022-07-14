@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 void main() {
   runApp(Calculator());
@@ -18,14 +19,14 @@ class Calculator extends StatelessWidget {
 
 class SimpleCalculator extends StatefulWidget {
   @override
-  State<SimpleCalculator> createState() => _SimpleCalculatorState();
+  _SimpleCalculatorState createState() => _SimpleCalculatorState();
 }
 
 class _SimpleCalculatorState extends State<SimpleCalculator> {
   String equation = "0";
   String result = "0";
   String expression = "";
-  double exuationFontSize = 38.0;
+  double equationFontSize = 38.0;
   double resultFontSize = 48.0;
 
   buttonPressed(String buttonText) {
@@ -33,22 +34,36 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
       if (buttonText == "C") {
         equation = "0";
         result = "0";
-        exuationFontSize = 38.0;
+        equationFontSize = 38.0;
         resultFontSize = 48.0;
-      } else if (buttonText == "del") {
-        exuationFontSize = 48.0;
+      } else if (buttonText == "⌫") {
+        equationFontSize = 48.0;
         resultFontSize = 38.0;
         equation = equation.substring(0, equation.length - 1);
         if (equation == "") {
           equation = "0";
         }
       } else if (buttonText == "=") {
-        exuationFontSize = 38.0;
+        equationFontSize = 38.0;
         resultFontSize = 48.0;
+
+        expression = equation;
+        expression = expression.replaceAll('×', '*');
+        expression = expression.replaceAll('÷', '/');
+
+        try {
+          Parser p = Parser();
+          Expression exp = p.parse(expression);
+
+          ContextModel cm = ContextModel();
+          result = '${exp.evaluate(EvaluationType.REAL, cm)}';
+        } catch (e) {
+          result = "Error";
+        }
       } else {
-        exuationFontSize = 48.0;
+        equationFontSize = 48.0;
         resultFontSize = 38.0;
-        if (buttonText == "0") {
+        if (equation == "0") {
           equation = buttonText;
         } else {
           equation = equation + buttonText;
@@ -60,45 +75,31 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
   Widget buildButton(
       String buttonText, double buttonHeight, Color buttonColor) {
     return Container(
-      width: MediaQuery.of(context).size.width * .75,
-      child: Table(
-        children: [
-          TableRow(children: [
-            Container(
-              height: MediaQuery.of(context).size.height * 0.1 * buttonHeight,
-              color: buttonColor,
-              child: FlatButton(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(0.0),
-                    side: BorderSide(
-                        color: Colors.white,
-                        width: 1,
-                        style: BorderStyle.solid)),
-                onPressed: () => buttonPressed(buttonText),
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  buttonText,
-                  style: TextStyle(
-                      fontSize: 30.0,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.white),
-                ),
-              ),
-            )
-          ])
-        ],
-      ),
+      height: MediaQuery.of(context).size.height * 0.1 * buttonHeight,
+      color: buttonColor,
+      child: FlatButton(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(0.0),
+              side: BorderSide(
+                  color: Colors.white, width: 1, style: BorderStyle.solid)),
+          padding: EdgeInsets.all(16.0),
+          onPressed: () => buttonPressed(buttonText),
+          child: Text(
+            buttonText,
+            style: TextStyle(
+                fontSize: 30.0,
+                fontWeight: FontWeight.normal,
+                color: Colors.white),
+          )),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Simple Calculator'),
-      ),
+      appBar: AppBar(title: Text('Simple Calculator')),
       body: Column(
-        children: [
+        children: <Widget>[
           Container(
             alignment: Alignment.center,
             padding: EdgeInsets.fromLTRB(0, 10, 10, 0),
@@ -111,30 +112,32 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
             alignment: Alignment.centerRight,
             padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
             child: Text(
-              "0",
-              style: TextStyle(fontSize: exuationFontSize),
+              equation,
+              style: TextStyle(fontSize: equationFontSize),
             ),
           ),
           Container(
             alignment: Alignment.centerRight,
-            padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+            padding: EdgeInsets.fromLTRB(10, 30, 10, 0),
             child: Text(
-              "0",
+              result,
               style: TextStyle(fontSize: resultFontSize),
             ),
           ),
-          Expanded(child: Divider()),
+          Expanded(
+            child: Divider(),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: <Widget>[
               Container(
-                width: MediaQuery.of(context).size.width * 0.75,
+                width: MediaQuery.of(context).size.width * .75,
                 child: Table(
                   children: [
                     TableRow(children: [
                       buildButton("C", 1, Colors.redAccent),
-                      buildButton("del", 1, Colors.black45),
-                      buildButton("/", 1, Colors.green),
+                      buildButton("⌫", 1, Colors.black54),
+                      buildButton("÷", 1, Colors.black54),
                     ]),
                     TableRow(children: [
                       buildButton("7", 1, Colors.blue),
@@ -164,13 +167,13 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
                 child: Table(
                   children: [
                     TableRow(children: [
-                      buildButton("x", 1, Colors.green),
+                      buildButton("×", 1, Colors.black54),
                     ]),
                     TableRow(children: [
-                      buildButton("-", 1, Colors.green),
+                      buildButton("-", 1, Colors.black54),
                     ]),
                     TableRow(children: [
-                      buildButton("+", 1, Colors.green),
+                      buildButton("+", 1, Colors.black54),
                     ]),
                     TableRow(children: [
                       buildButton("=", 2, Colors.redAccent),
@@ -179,7 +182,7 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
                 ),
               )
             ],
-          )
+          ),
         ],
       ),
     );
